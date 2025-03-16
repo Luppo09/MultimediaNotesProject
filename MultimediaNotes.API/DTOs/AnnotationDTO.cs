@@ -23,5 +23,7 @@ namespace MultimediaNotes.API.DTOs
 
         [Required(ErrorMessage = "UserId is required.")]
         public int UserId { get; set; }
+
+        public UserDTO User { get; set; }
     }
 }

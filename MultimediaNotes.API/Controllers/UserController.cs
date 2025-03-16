@@ -20,6 +20,7 @@ namespace MultimediaNotes.API.Controllers
             _mapper = mapper;
         }
 
+
         // GET: api/User
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
@@ -27,6 +28,7 @@ namespace MultimediaNotes.API.Controllers
             var users = await _context.Users.ToListAsync();
             return Ok(_mapper.Map<IEnumerable<UserDTO>>(users));
         }
+
 
         // GET: api/User/5
         [HttpGet("{id}")]
@@ -41,6 +43,39 @@ namespace MultimediaNotes.API.Controllers
 
             return Ok(_mapper.Map<UserDTO>(user));
         }
+
+
+        [HttpGet("WithAnnotations")]
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsersWithAnnotations()
+        {
+            // Carregar usuários com suas anotações
+            var users = await _context.Users
+                .Include(u => u.Annotations)
+                .ToListAsync();
+
+            // Mapear para DTO sem criar referências circulares
+            var userDtos = users.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Email = u.Email,
+                // Não incluir o hash da senha por razões de segurança
+                Annotations = u.Annotations.Select(a => new AnnotationDTO
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    Content = a.Content,
+                    Category = a.Category,
+                    Priority = a.Priority,
+                    Reminder = a.Reminder,
+                    UserId = u.Id
+                    // Importante: NÃO inclua a referência ao User aqui
+                }).ToList()
+            }).ToList();
+
+            return Ok(userDtos);
+        }
+
 
         // PUT: api/User/5
         [HttpPut("{id}")]
@@ -73,6 +108,7 @@ namespace MultimediaNotes.API.Controllers
             return NoContent();
         }
 
+
         // POST: api/User
         [HttpPost]
         public async Task<ActionResult<UserDTO>> PostUser(UserDTO userDto)
@@ -83,6 +119,7 @@ namespace MultimediaNotes.API.Controllers
 
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, _mapper.Map<UserDTO>(user));
         }
+
 
         // DELETE: api/User/5
         [HttpDelete("{id}")]
@@ -99,6 +136,7 @@ namespace MultimediaNotes.API.Controllers
 
             return NoContent();
         }
+
 
         private bool UserExists(int id)
         {

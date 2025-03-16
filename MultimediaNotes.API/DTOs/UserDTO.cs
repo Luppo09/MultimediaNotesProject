@@ -18,6 +18,11 @@ namespace MultimediaNotes.API.DTOs
 
         [Required(ErrorMessage = "Password is required.")]
         [StringLength(255, ErrorMessage = "Password hash cannot exceed 255 characters.")]
+        
+
         public string PasswordHash { get; set; }
+
+
+        public List<AnnotationDTO> Annotations { get; set; }
     }
 }
