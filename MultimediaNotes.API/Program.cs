@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using MultimediaNotes.API.Context;
 using MultimediaNotes.API.DTOs.Mappings;
+using MultimediaNotes.API.Models.Repositories;
+using MultimediaNotes.API.Models.Repositories.Interfaces;
+using MultimediaNotes.API.Services;
+using MultimediaNotes.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +23,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Adding the mapping profile
-builder.Services.AddAutoMapper(typeof(MappingProfile)); 
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAnnotationRepository, AnnotationRepository>();
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 
 
 var app = builder.Build();

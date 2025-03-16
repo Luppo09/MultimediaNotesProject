@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultimediaNotes.API.Context;
-using MultimediaNotes.API.Repositories.Interfaces;
+using MultimediaNotes.API.Models.Repositories.Interfaces;
 
 namespace MultimediaNotes.API.Models.Repositories
 {

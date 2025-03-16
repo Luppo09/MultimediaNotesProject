@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultimediaNotes.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c137d274ae40ec9c549128864460c784a8cebbe3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+faab873ae6c3c01db4c9251688e340901c74d9e1")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultimediaNotes.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultimediaNotes.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

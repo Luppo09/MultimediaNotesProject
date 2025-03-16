@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MultimediaNotes.API.Context;
-using MultimediaNotes.API.Repositories.Interfaces;
+using MultimediaNotes.API.Models.Repositories.Interfaces;
 
 namespace MultimediaNotes.API.Models.Repositories
 {
@@ -13,34 +13,38 @@ namespace MultimediaNotes.API.Models.Repositories
             _context = context;
         }
 
-        public async Task<User> GetUserByIdAsync(int id)
-        {
-            return await _context.Users.FindAsync(id);
-        }
 
-        public async Task<User> GetUserByEmailAsync(string email)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-        }
-
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<User>> GetAllUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
-        public async Task AddUserAsync(User user)
+
+        public async Task<IEnumerable<User>> GetUsersWithAnnotations()
+        {
+            return await _context.Users.Include(c => c.Annotations).ToListAsync();
+        }
+
+        public async Task<User> GetUserById(int id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+
+
+
+        public async Task CreateUser(User user)
         {
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateUserAsync(User user)
+        public async Task UpdateUser(User user)
         {
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteUserAsync(int id)
+        public async Task DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user != null)

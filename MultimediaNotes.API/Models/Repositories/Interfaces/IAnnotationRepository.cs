@@ -1,4 +1,4 @@
-﻿namespace MultimediaNotes.API.Models.Repositories
+﻿namespace MultimediaNotes.API.Models.Repositories.Interfaces
 {
     public interface IAnnotationRepository
     {

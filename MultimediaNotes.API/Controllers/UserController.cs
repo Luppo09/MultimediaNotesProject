@@ -4,6 +4,7 @@ using MultimediaNotes.API.Context;
 using MultimediaNotes.API.Models;
 using MultimediaNotes.API.DTOs;
 using AutoMapper;
+using MultimediaNotes.API.Services.Interfaces;
 
 namespace MultimediaNotes.API.Controllers
 {
@@ -11,41 +12,49 @@ namespace MultimediaNotes.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IUserService _userService;
 
-        public UserController(AppDbContext context, IMapper mapper)
+        public UserController(IUserService userService)
         {
-            _context = context;
-            _mapper = mapper;
+            _userService = userService;
         }
-
 
         // GET: api/User
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
         {
-            var users = await _context.Users.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<UserDTO>>(users));
+            var usersDTO = await _userService.GetAllUsers();
+            if (usersDTO == null)
+            {
+                return NotFound("Users not found");
+            }
+            return Ok(usersDTO);
         }
 
+        [HttpGet("annotations")]
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsersAnnotations()
+        {
+            var usersDTO = await _userService.GetUsersWithAnnotations();
+            if (usersDTO == null)
+            {
+                return NotFound("Users not found");
+            }
+            return Ok();
+        }
 
         // GET: api/User/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserDTO>> GetUser(int id)
+        [HttpGet("{id:int}", Name = "GetUser")]
+        public async Task<ActionResult<UserDTO>> Get(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
+            var userDTO = await _userService.GetUserById(id);
+            if (userDTO == null)
             {
-                return NotFound();
+                return NotFound("User not found");
             }
-
-            return Ok(_mapper.Map<UserDTO>(user));
+            return Ok(userDTO);
         }
 
-
-        [HttpGet("WithAnnotations")]
+        /*[HttpGet("WithAnnotations")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsersWithAnnotations()
         {
             // Carregar usuários com suas anotações
@@ -74,73 +83,58 @@ namespace MultimediaNotes.API.Controllers
             }).ToList();
 
             return Ok(userDtos);
-        }
-
+        }*/
 
         // PUT: api/User/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, UserDTO userDto)
+
+
+        // POST: api/User
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] UserDTO userDTO)
         {
-            if (id != userDto.Id)
+            if (userDTO == null)
+                return BadRequest("Invalid Data");
+
+            await _userService.CreateUser(userDTO);
+
+            return new CreatedAtRouteResult(
+            "GetUser",
+            new { id = userDTO.Id },
+            userDTO);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, [FromBody] UserDTO userDTO)
+        {
+            if (userDTO == null)
             {
                 return BadRequest();
             }
 
-            var user = _mapper.Map<User>(userDto);
-            _context.Entry(user).State = EntityState.Modified;
-
-            try
+            if (id != userDTO.Id)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest();
             }
 
-            return NoContent();
+            await _userService.UpdateUser(userDTO);
+
+            return Ok(userDTO);
         }
-
-
-        // POST: api/User
-        [HttpPost]
-        public async Task<ActionResult<UserDTO>> PostUser(UserDTO userDto)
-        {
-            var user = _mapper.Map<User>(userDto);
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, _mapper.Map<UserDTO>(user));
-        }
-
 
         // DELETE: api/User/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<UserDTO>> Delete(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var userDTO = await _userService.GetUserById(id);
+            if (userDTO == null)
             {
-                return NotFound();
+                return NotFound("User not found");
             }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            await _userService.DeleteUser(id);
 
-            return NoContent();
-        }
-
-
-        private bool UserExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
+            return Ok(userDTO);
         }
     }
 }
