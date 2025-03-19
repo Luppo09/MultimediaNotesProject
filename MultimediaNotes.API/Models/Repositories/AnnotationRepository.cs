@@ -13,36 +13,42 @@ namespace MultimediaNotes.API.Models.Repositories
             _context = context;
         }
 
-        public async Task<Annotation> GetAnnotationByIdAsync(int id)
+        public async Task<IEnumerable<Annotation>> GetAllAnotations()
         {
-            return await _context.Annotations.Include(a => a.User).FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.Annotations.Include(c => c.User).ToListAsync();
         }
 
-        public async Task<IEnumerable<Annotation>> GetAnnotationsByUserIdAsync(int userId)
+        public async Task<IEnumerable<Annotation>> GetAnnotationsByUserId(int userId)
         {
-            return await _context.Annotations.Where(a => a.UserId == userId).ToListAsync();
+            return await _context.Annotations.Where(c => c.UserId == userId).ToListAsync();
         }
 
-        public async Task AddAnnotationAsync(Annotation annotation)
+        public async Task<Annotation> GetAnnotationById(int id)
         {
-            await _context.Annotations.AddAsync(annotation);
+            return await _context.Annotations.Include(c => c.User).Where(p => p.Id == id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Annotation> CreateAnnotation(Annotation annotation)
+        {
+            _context.Annotations.Add(annotation);
             await _context.SaveChangesAsync();
+            return annotation;
         }
 
-        public async Task UpdateAnnotationAsync(Annotation annotation)
+        public async Task<Annotation> UpdateAnnotation(Annotation annotation)
         {
-            _context.Annotations.Update(annotation);
+            _context.Entry(annotation).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            return annotation;
         }
 
-        public async Task DeleteAnnotationAsync(int id)
+        public async Task<Annotation> DeleteAnnotation(int id)
         {
-            var annotation = await _context.Annotations.FindAsync(id);
-            if (annotation != null)
-            {
-                _context.Annotations.Remove(annotation);
-                await _context.SaveChangesAsync();
-            }
+            var annotation = await GetAnnotationById(id);
+            _context.Annotations.Remove(annotation);
+            await _context.SaveChangesAsync();
+            return annotation;
         }
     }
 }

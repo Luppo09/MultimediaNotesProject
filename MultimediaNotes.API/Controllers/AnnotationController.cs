@@ -4,6 +4,7 @@ using MultimediaNotes.API.Context;
 using MultimediaNotes.API.Models;
 using MultimediaNotes.API.DTOs;
 using AutoMapper;
+using MultimediaNotes.API.Services.Interfaces;
 
 namespace MultimediaNotes.API.Controllers
 {
@@ -11,99 +12,96 @@ namespace MultimediaNotes.API.Controllers
     [ApiController]
     public class AnnotationController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IAnnotationService _annotationsService;
 
-        public AnnotationController(AppDbContext context, IMapper mapper)
+        public AnnotationController(IAnnotationService annotationsService)
         {
-            _context = context;
-            _mapper = mapper;
+            _annotationsService = annotationsService;
         }
 
         // GET: api/Annotation
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AnnotationDTO>>> GetAnnotations()
+        public async Task<ActionResult<IEnumerable<AnnotationDTO>>> GetAll()
         {
-            var annotations = await _context.Annotations.Include(a => a.User).ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<AnnotationDTO>>(annotations));
+            var annotationsDTO = await _annotationsService.GetAllAnotations();
+            if (annotationsDTO == null)
+            {
+                return NotFound("Annotations not found");
+            }
+            return Ok(annotationsDTO);
         }
 
         // GET: api/Annotation/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AnnotationDTO>> GetAnnotation(int id)
+        [HttpGet("{id:int}", Name = "GetAnnotation")]
+        public async Task<ActionResult<AnnotationDTO>> Get(int id)
         {
-            var annotation = await _context.Annotations.Include(a => a.User)
-                                                       .FirstOrDefaultAsync(a => a.Id == id);
-
-            if (annotation == null)
+            var annotationsDTO = await _annotationsService.GetAnnotationById(id);
+            if (annotationsDTO == null)
             {
-                return NotFound();
+                return NotFound("annotation not found");
             }
-
-            return Ok(_mapper.Map<AnnotationDTO>(annotation));
+            return Ok(annotationsDTO);
         }
 
-        // PUT: api/Annotation/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAnnotation(int id, AnnotationDTO annotationDto)
+        // GET: api/Annotation/user/5
+        [HttpGet("user/{userId:int}")]
+        public async Task<ActionResult<IEnumerable<AnnotationDTO>>> GetAnnotationsByUserId(int userId)
         {
-            if (id != annotationDto.Id)
+            var annotationsDTO = await _annotationsService.GetAnnotationsByUserId(userId);
+
+            if (annotationsDTO == null || !annotationsDTO.Any())
             {
-                return BadRequest();
+                return NotFound("No annotations found for this user");
             }
 
-            var annotation = _mapper.Map<Annotation>(annotationDto);
-            _context.Entry(annotation).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AnnotationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(annotationsDTO);
         }
 
         // POST: api/Annotation
         [HttpPost]
-        public async Task<ActionResult<AnnotationDTO>> PostAnnotation(AnnotationDTO annotationDto)
+        public async Task<ActionResult> Post([FromBody] AnnotationDTO annotationDTO)
         {
-            var annotation = _mapper.Map<Annotation>(annotationDto);
-            _context.Annotations.Add(annotation);
-            await _context.SaveChangesAsync();
+            if (annotationDTO == null)
+                return BadRequest("Invalid Data");
 
-            return CreatedAtAction(nameof(GetAnnotation), new { id = annotation.Id }, _mapper.Map<AnnotationDTO>(annotation));
+            await _annotationsService.CreateAnnotation(annotationDTO);
+
+            return new CreatedAtRouteResult(
+            "GetAnnotation",
+            new { id = annotationDTO.Id },
+            annotationDTO);
         }
 
-        // DELETE: api/Annotation/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAnnotation(int id)
+        // PUT: api/Annotation/5
+        [HttpPut()]
+        public async Task<ActionResult<AnnotationDTO>> Put([FromBody] AnnotationDTO annotationDTO)
         {
-            var annotation = await _context.Annotations.FindAsync(id);
-            if (annotation == null)
+            if (annotationDTO == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            _context.Annotations.Remove(annotation);
-            await _context.SaveChangesAsync();
+            await _annotationsService.UpdateAnnotation(annotationDTO);
 
-            return NoContent();
+            return Ok(annotationDTO);
         }
 
-        private bool AnnotationExists(int id)
+
+
+        // DELETE: api/Annotation/5
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<AnnotationDTO>> Delete(int id)
         {
-            return _context.Annotations.Any(e => e.Id == id);
+            var annotationDTO = await _annotationsService.GetAnnotationById(id);
+
+            if (annotationDTO == null)
+            {
+                return NotFound("Annotation not found");
+            }
+
+            await _annotationsService.DeleteAnnotation(id);
+
+            return Ok(annotationDTO);
         }
     }
 }
