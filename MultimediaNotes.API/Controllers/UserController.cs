@@ -39,7 +39,7 @@ namespace MultimediaNotes.API.Controllers
             {
                 return NotFound("Users not found");
             }
-            return Ok();
+            return Ok(usersDTO);
         }
 
         // GET: api/User/5

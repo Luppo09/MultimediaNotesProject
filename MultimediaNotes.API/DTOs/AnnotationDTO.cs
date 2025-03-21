@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MultimediaNotes.API.DTOs
 {
@@ -24,6 +25,7 @@ namespace MultimediaNotes.API.DTOs
         [Required(ErrorMessage = "UserId is required.")]
         public int UserId { get; set; }
 
+        [JsonIgnore]
         public UserDTO User { get; set; }
     }
 }
