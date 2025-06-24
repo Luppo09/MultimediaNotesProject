@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Criar Anotação</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head> 
+<body>
+  <header>
+    <h1>Criar Nova Anotação</h1>
+    <a href="notes.html">Ver Minhas Anotações</a>
+  </header>
+
+  <main>
+    <section class="card">
+      <form id="form">
+        <input type="text" id="title" placeholder="Título" required />
+        <textarea id="content" placeholder="Conteúdo" required></textarea>
+
+        <select id="priority">
+          <option value="1">Baixa</option>
+          <option value="2">Média</option>
+          <option value="3">Alta</option>
+        </select>
+
+        <input type="text" id="category" placeholder="Categoria" />
+        <input type="datetime-local" id="reminder" />
+        <button type="submit">Salvar</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/create.js"></script>
+</body>
+</html>

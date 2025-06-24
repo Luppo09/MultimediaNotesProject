@@ -3,14 +3,6 @@
   "WorkspaceRootPath": "D:\\Desenvolvimento\\PROJETOS\\C#\\Anota\u00E7\u00F5es_Multimidia\\MultimediaNotesProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5233BB28-992D-4457-A85C-96CEB899AFBD}|MultimediaNotes.API\\MultimediaNotes.API.csproj|d:\\desenvolvimento\\projetos\\c#\\anota\u00E7\u00F5es_multimidia\\multimedianotesproject\\multimedianotes.api\\dtos\\annotationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5233BB28-992D-4457-A85C-96CEB899AFBD}|MultimediaNotes.API\\MultimediaNotes.API.csproj|solutionrelative:multimedianotes.api\\dtos\\annotationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5233BB28-992D-4457-A85C-96CEB899AFBD}|MultimediaNotes.API\\MultimediaNotes.API.csproj|d:\\desenvolvimento\\projetos\\c#\\anota\u00E7\u00F5es_multimidia\\multimedianotesproject\\multimedianotes.api\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5233BB28-992D-4457-A85C-96CEB899AFBD}|MultimediaNotes.API\\MultimediaNotes.API.csproj|solutionrelative:multimedianotes.api\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5233BB28-992D-4457-A85C-96CEB899AFBD}|MultimediaNotes.API\\MultimediaNotes.API.csproj|d:\\desenvolvimento\\projetos\\c#\\anota\u00E7\u00F5es_multimidia\\multimedianotesproject\\multimedianotes.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5233BB28-992D-4457-A85C-96CEB899AFBD}|MultimediaNotes.API\\MultimediaNotes.API.csproj|solutionrelative:multimedianotes.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -22,45 +14,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "UserDTO.cs",
-              "DocumentMoniker": "D:\\Desenvolvimento\\PROJETOS\\C#\\Anota\u00E7\u00F5es_Multimidia\\MultimediaNotesProject\\MultimediaNotes.API\\DTOs\\UserDTO.cs",
-              "RelativeDocumentMoniker": "MultimediaNotes.API\\DTOs\\UserDTO.cs",
-              "ToolTip": "D:\\Desenvolvimento\\PROJETOS\\C#\\Anota\u00E7\u00F5es_Multimidia\\MultimediaNotesProject\\MultimediaNotes.API\\DTOs\\UserDTO.cs",
-              "RelativeToolTip": "MultimediaNotes.API\\DTOs\\UserDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-21T00:37:22.976Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "AnnotationDTO.cs",
-              "DocumentMoniker": "D:\\Desenvolvimento\\PROJETOS\\C#\\Anota\u00E7\u00F5es_Multimidia\\MultimediaNotesProject\\MultimediaNotes.API\\DTOs\\AnnotationDTO.cs",
-              "RelativeDocumentMoniker": "MultimediaNotes.API\\DTOs\\AnnotationDTO.cs",
-              "ToolTip": "D:\\Desenvolvimento\\PROJETOS\\C#\\Anota\u00E7\u00F5es_Multimidia\\MultimediaNotesProject\\MultimediaNotes.API\\DTOs\\AnnotationDTO.cs",
-              "RelativeToolTip": "MultimediaNotes.API\\DTOs\\AnnotationDTO.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABkAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-21T00:34:38.727Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Desenvolvimento\\PROJETOS\\C#\\Anota\u00E7\u00F5es_Multimidia\\MultimediaNotesProject\\MultimediaNotes.API\\Program.cs",
               "RelativeDocumentMoniker": "MultimediaNotes.API\\Program.cs",
               "ToolTip": "D:\\Desenvolvimento\\PROJETOS\\C#\\Anota\u00E7\u00F5es_Multimidia\\MultimediaNotesProject\\MultimediaNotes.API\\Program.cs",
               "RelativeToolTip": "MultimediaNotes.API\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-21T00:33:23.76Z",
+              "WhenOpened": "2025-06-22T14:27:08.847Z",
               "EditorCaption": ""
             }
           ]
