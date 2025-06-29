@@ -6,6 +6,27 @@
   <title>Minhas Anotações</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
+<div id="editModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Editar Anotação</h2>
+    <form id="editForm">
+      <input type="hidden" id="editId" />
+      <input type="text" id="editTitle" required />
+      <textarea id="editContent" required></textarea>
+      <input type="text" id="editCategory" />
+      <input type="datetime-local" id="editReminder" />
+      <select id="editPriority">
+        <option value="1">Baixa</option>
+        <option value="2">Média</option>
+        <option value="3">Alta</option>
+      </select>
+      <button type="submit">Salvar Alterações</button>
+      <button type="button" id="cancelEdit">Cancelar</button>
+    </form>
+  </div>
+</div>
+
 <body>
   <header>
     <h1>Minhas Anotações</h1>
@@ -16,6 +37,7 @@
     <section id="note-list" class="card">
       <div id="notesContainer">
         <!-- Notas serão exibidas aqui -->
+
       </div>
     </section>
   </main>
