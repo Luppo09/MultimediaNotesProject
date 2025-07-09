@@ -1,7 +1,9 @@
+import { POSTAnnotation } from "./api.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("form");
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const title = document.getElementById("title").value.trim();
@@ -13,20 +15,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!title || !content) return alert("Preencha todos os campos obrigatórios.");
 
     const anotacao = {
-      id: Date.now(),
       title,
       content,
-      priority,
+      priority: parseInt(priority),
       category,
-      reminder
+      reminder,
+      userId: 1 // ID fixo provisório
     };
 
-    const notasSalvas = JSON.parse(localStorage.getItem("anotacoes")) || [];
-    notasSalvas.push(anotacao);
-    localStorage.setItem("anotacoes", JSON.stringify(notasSalvas));
+    console.log("Payload enviado:", JSON.stringify(anotacao));
 
-    alert("Anotação salva com sucesso!");
-    form.reset();
-    window.location.href = "notes.html"; // redireciona para lista
+    try {
+      await POSTAnnotation("http://localhost:5145/api/Annotation", anotacao);
+      alert("Anotação salva com sucesso!");
+      form.reset();
+      window.location.href = "notes.html";
+    } catch {
+      alert("Erro ao salvar a anotação. Tente novamente.");
+    }
   });
 });
+

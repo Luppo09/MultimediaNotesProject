@@ -2,22 +2,21 @@
    Funções utilitárias declaradas ANTES do DOMContentLoaded
 ======================================================== */
 
-/* --- Excluir nota ------------------------------------- */
+/* --- Excluir nota (ainda só no localStorage) ------------ */
 function excluirNota(id) {
-  console.log("Excluindo nota com id:", id);           // <-- depuração
+  console.log("Excluindo nota com id:", id);
   let anotacoes = JSON.parse(localStorage.getItem("anotacoes")) || [];
   anotacoes = anotacoes.filter(n => Number(n.id) !== Number(id));
   localStorage.setItem("anotacoes", JSON.stringify(anotacoes));
-  location.reload();                                   // recarrega a lista
+  location.reload();
 }
 
-/* --- Abrir modal de edição ---------------------------- */
+/* --- Abrir modal de edição*/
 function abrirEdicao(id) {
   const anotacoes = JSON.parse(localStorage.getItem("anotacoes")) || [];
   const nota = anotacoes.find(n => Number(n.id) === Number(id));
   if (!nota) return;
 
-  // Preenche campos
   document.getElementById("editId").value       = nota.id;
   document.getElementById("editTitle").value    = nota.title;
   document.getElementById("editContent").value  = nota.content;
@@ -30,14 +29,13 @@ function abrirEdicao(id) {
   modal.classList.add("open");
 }
 
-/* --- Fechar modal (usado em cancelar e salvar) -------- */
+/* --- Fechar modal de edição */
 function fecharModal() {
   const modal    = document.getElementById("editModal");
   const content  = modal.querySelector(".modal-content");
 
   modal.classList.add("closing");
 
-  // garante que só executa quando a animação da saída terminar
   content.addEventListener(
     "animationend",
     () => {
@@ -51,72 +49,80 @@ function fecharModal() {
 /* ========================================================
    Fluxo principal
 ======================================================== */
-document.addEventListener("DOMContentLoaded", () => {
+import { GETAnnotation } from "./api.js";
+document.addEventListener("DOMContentLoaded", async () => {
   const notesContainer = document.getElementById("notesContainer");
-  let anotacoes = JSON.parse(localStorage.getItem("anotacoes")) || [];
+  
+  try {
+    const apiData = await GETAnnotation("http://localhost:5145/api/Annotation");
+    let anotacoes = apiData.$values || [];
 
-  /* ---------- renderização inicial ---------- */
-  if (anotacoes.length === 0) {
-    notesContainer.innerHTML = "<p>Nenhuma anotação cadastrada ainda.</p>";
-    return;
-  }
-
-  anotacoes.forEach(nota => {
-    const div = document.createElement("div");
-    div.className = "note";
-    div.dataset.priority = nota.priority;
-    div.innerHTML = `
-      <h3>${nota.title}</h3>
-      <p>${nota.content}</p>
-      <p><strong>Categoria:</strong> ${nota.category || "Nenhuma"}</p>
-      ${
-        nota.reminder
-          ? `<p><strong>Lembrete:</strong> ${new Date(
-              nota.reminder
-            ).toLocaleString()}</p>`
-          : ""
-      }
-      <button class="delete-btn" data-id="${nota.id}">Excluir</button>
-      <button class="edit-btn"   data-id="${nota.id}">Editar</button>
-    `;
-    notesContainer.appendChild(div);
-  });
-
-  /* ---------- EXCLUIR / EDITAR ---------- */
-  notesContainer.addEventListener("click", e => {
-    const id = parseInt(e.target.dataset.id);
-    if (e.target.classList.contains("delete-btn")) {
-      excluirNota(id);
-    }
-    if (e.target.classList.contains("edit-btn")) {
-      abrirEdicao(id);
-    }
-  });
-
-  /* ---------- cancelar edição ---------- */
-  document
-    .getElementById("cancelEdit")
-    .addEventListener("click", fecharModal);
-
-  /* ---------- salvar edição ---------- */
-  document.getElementById("editForm").addEventListener("submit", e => {
-    e.preventDefault();
-
-    const id = parseInt(document.getElementById("editId").value);
-    const notaEditada = {
-      title:     document.getElementById("editTitle").value,
-      content:   document.getElementById("editContent").value,
-      category:  document.getElementById("editCategory").value,
-      reminder:  document.getElementById("editReminder").value,
-      priority:  document.getElementById("editPriority").value
-    };
-
-    anotacoes = anotacoes.map(n =>
-      Number(n.id) === Number(id) ? { ...n, ...notaEditada } : n
-    );
-
+    // Salva no localStorage para manter compatibilidade com o restante do código
     localStorage.setItem("anotacoes", JSON.stringify(anotacoes));
-    fecharModal();
-    location.reload();   // mostra a lista atualizada
-  });
+
+    /* ---------- renderização inicial ---------- */
+    if (anotacoes.length === 0) {
+      notesContainer.innerHTML = "<p>Nenhuma anotação cadastrada ainda.</p>";
+      return;
+    }
+
+    anotacoes.forEach(nota => {
+      const div = document.createElement("div");
+      div.className = "note";
+      div.dataset.priority = nota.priority;
+      div.innerHTML = `
+        <h3>${nota.title}</h3>
+        <p>${nota.content}</p>
+        <p><strong>Categoria:</strong> ${nota.category || "Nenhuma"}</p>
+        ${
+          nota.reminder
+            ? `<p><strong>Lembrete:</strong> ${new Date(nota.reminder).toLocaleString()}</p>`
+            : ""
+        }
+        <button class="delete-btn" data-id="${nota.id}">Excluir</button>
+        <button class="edit-btn"   data-id="${nota.id}">Editar</button>
+      `;
+      notesContainer.appendChild(div);
+    });
+
+    /* ---------- EXCLUIR / EDITAR ---------- */
+    notesContainer.addEventListener("click", e => {
+      const id = parseInt(e.target.dataset.id);
+      if (e.target.classList.contains("delete-btn")) {
+        excluirNota(id);
+      }
+      if (e.target.classList.contains("edit-btn")) {
+        abrirEdicao(id);
+      }
+    });
+
+    /* ---------- cancelar edição ---------- */
+    document.getElementById("cancelEdit").addEventListener("click", fecharModal);
+
+    /* ---------- salvar edição ---------- */
+    document.getElementById("editForm").addEventListener("submit", e => {
+      e.preventDefault();
+
+      const id = parseInt(document.getElementById("editId").value);
+      const notaEditada = {
+        title:     document.getElementById("editTitle").value,
+        content:   document.getElementById("editContent").value,
+        category:  document.getElementById("editCategory").value,
+        reminder:  document.getElementById("editReminder").value,
+        priority:  document.getElementById("editPriority").value
+      };
+
+      anotacoes = anotacoes.map(n =>
+        Number(n.id) === Number(id) ? { ...n, ...notaEditada } : n
+      );
+
+      localStorage.setItem("anotacoes", JSON.stringify(anotacoes));
+      fecharModal();
+      location.reload();
+    });
+
+  } catch (error) {
+    console.error("Erro ao carregar anotações:", error);
+    notesContainer.innerHTML = `<p>Erro ao carregar anotações da API.</p>`;
+  }
 });

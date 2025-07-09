@@ -15,6 +15,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
                  options.UseMySql(mySqlConnection,
                  ServerVersion.AutoDetect(mySqlConnection)));
 
+// CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://127.0.0.1:3000")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
+
 // Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -37,6 +49,9 @@ builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 
 
 var app = builder.Build();
+
+// Enable CORS before Authentication/Authorization
+app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

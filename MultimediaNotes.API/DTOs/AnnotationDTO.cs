@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace MultimediaNotes.API.DTOs
@@ -18,13 +19,14 @@ namespace MultimediaNotes.API.DTOs
         public string Category { get; set; }
 
         [Range(1, 3, ErrorMessage = "Priority must be between 1 (Low) and 3 (High).")]
-        public int Priority { get; set; } // 1 = Baixa, 2 = Média, 3 = Alta
+        public int Priority { get; set; } // 1 = Low, 2 = Medium, 3 = High
 
-        public DateTime? Reminder { get; set; } // Lembrete opcional
+        public DateTime? Reminder { get; set; } // Optional reminder
 
         [Required(ErrorMessage = "UserId is required.")]
         public int UserId { get; set; }
 
+        [ValidateNever]
         [JsonIgnore]
         public UserDTO User { get; set; }
     }

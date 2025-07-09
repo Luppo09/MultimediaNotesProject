@@ -58,7 +58,7 @@ namespace MultimediaNotes.API.Controllers
         }
 
         // POST: api/Annotation
-        [HttpPost]
+        /*[HttpPost]
         public async Task<ActionResult> Post([FromBody] AnnotationDTO annotationDTO)
         {
             if (annotationDTO == null)
@@ -70,6 +70,24 @@ namespace MultimediaNotes.API.Controllers
             "GetAnnotation",
             new { id = annotationDTO.Id },
             annotationDTO);
+        }*/
+
+        // POST: api/Annotation
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] AnnotationDTO annotationDTO)
+        {
+            if (annotationDTO == null)
+                return BadRequest("Invalid Data");
+
+            if (annotationDTO.UserId == 0)
+                return BadRequest("UserId is required to create annotation.");
+
+            await _annotationsService.CreateAnnotation(annotationDTO);
+
+            return new CreatedAtRouteResult(
+                "GetAnnotation",
+                new { id = annotationDTO.Id },
+                annotationDTO);
         }
 
         // PUT: api/Annotation/5
