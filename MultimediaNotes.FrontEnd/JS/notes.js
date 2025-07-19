@@ -1,6 +1,7 @@
 /* ========================================================
    Funções utilitárias declaradas ANTES do DOMContentLoaded
 ======================================================== */
+import { GETAnnotation, PUTAnnotation } from "./api.js";
 
 /* --- Excluir nota (ainda só no localStorage) ------------ */
 function excluirNota(id) {
@@ -17,11 +18,13 @@ function abrirEdicao(id) {
   const nota = anotacoes.find(n => Number(n.id) === Number(id));
   if (!nota) return;
 
-  document.getElementById("editId").value       = nota.id;
-  document.getElementById("editTitle").value    = nota.title;
-  document.getElementById("editContent").value  = nota.content;
+  document.getElementById("editId").value = nota.id;
+  document.getElementById("editTitle").value = nota.title;
+  document.getElementById("editContent").value = nota.content;
   document.getElementById("editCategory").value = nota.category || "";
-  document.getElementById("editReminder").value = nota.reminder || "";
+  document.getElementById("editReminder").value = nota.reminder
+    ? new Date(nota.reminder).toISOString().slice(0, 16)
+    : "";
   document.getElementById("editPriority").value = nota.priority;
 
   const modal = document.getElementById("editModal");
@@ -31,8 +34,8 @@ function abrirEdicao(id) {
 
 /* --- Fechar modal de edição */
 function fecharModal() {
-  const modal    = document.getElementById("editModal");
-  const content  = modal.querySelector(".modal-content");
+  const modal = document.getElementById("editModal");
+  const content = modal.querySelector(".modal-content");
 
   modal.classList.add("closing");
 
@@ -49,10 +52,9 @@ function fecharModal() {
 /* ========================================================
    Fluxo principal
 ======================================================== */
-import { GETAnnotation } from "./api.js";
 document.addEventListener("DOMContentLoaded", async () => {
   const notesContainer = document.getElementById("notesContainer");
-  
+
   try {
     const apiData = await GETAnnotation("http://localhost:5145/api/Annotation");
     let anotacoes = apiData.$values || [];
@@ -74,10 +76,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         <h3>${nota.title}</h3>
         <p>${nota.content}</p>
         <p><strong>Categoria:</strong> ${nota.category || "Nenhuma"}</p>
-        ${
-          nota.reminder
-            ? `<p><strong>Lembrete:</strong> ${new Date(nota.reminder).toLocaleString()}</p>`
-            : ""
+        ${nota.reminder
+          ? `<p><strong>Lembrete:</strong> ${new Date(nota.reminder).toLocaleString()}</p>`
+          : ""
         }
         <button class="delete-btn" data-id="${nota.id}">Excluir</button>
         <button class="edit-btn"   data-id="${nota.id}">Editar</button>
@@ -100,25 +101,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("cancelEdit").addEventListener("click", fecharModal);
 
     /* ---------- salvar edição ---------- */
-    document.getElementById("editForm").addEventListener("submit", e => {
+    document.getElementById("editForm").addEventListener("submit", async e => {
       e.preventDefault();
 
       const id = parseInt(document.getElementById("editId").value);
       const notaEditada = {
-        title:     document.getElementById("editTitle").value,
-        content:   document.getElementById("editContent").value,
-        category:  document.getElementById("editCategory").value,
-        reminder:  document.getElementById("editReminder").value,
-        priority:  document.getElementById("editPriority").value
+        id,
+        title: document.getElementById("editTitle").value.trim(),
+        content: document.getElementById("editContent").value.trim(),
+        category: document.getElementById("editCategory").value.trim(),
+        reminder: document.getElementById("editReminder").value || null,
+        priority: parseInt(document.getElementById("editPriority").value),
+        userId: 1 // Provisório
       };
 
-      anotacoes = anotacoes.map(n =>
-        Number(n.id) === Number(id) ? { ...n, ...notaEditada } : n
-      );
-
-      localStorage.setItem("anotacoes", JSON.stringify(anotacoes));
-      fecharModal();
-      location.reload();
+      try {
+        const updated = await PUTAnnotation("http://localhost:5145/api/Annotation", notaEditada);
+        console.log("Anotação atualizada:", updated);
+        fecharModal();
+        location.reload();
+      } catch (error) {
+        console.error("Erro ao atualizar anotação:", error);
+        alert("Erro ao salvar alterações. Tente novamente.");
+      }
     });
 
   } catch (error) {
@@ -126,3 +131,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     notesContainer.innerHTML = `<p>Erro ao carregar anotações da API.</p>`;
   }
 });
+
