@@ -76,13 +76,22 @@ form button:hover  { background: #5e35b1; }
   background: #fff;
   border-left: 6px solid #ccc;
   padding: 1rem;
-  width: calc(50% - 1rem);
+  max-width: 600px;
+  width: 100%;
+  box-sizing: border-box;;
   box-shadow: 0 2px 5px rgba(0,0,0,.05);
   border-radius: 4px;
 }
 .note[data-priority="3"] { border-color: red;    }
 .note[data-priority="2"] { border-color: orange; }
 .note[data-priority="1"] { border-color: green;  }
+
+.note p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  white-space: pre-wrap; /* Mantém quebras de linha e formatações */
+}
 
 @media (max-width: 600px) {
   .note { width: 100%; }
