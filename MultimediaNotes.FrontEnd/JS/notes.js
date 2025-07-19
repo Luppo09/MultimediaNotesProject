@@ -1,15 +1,26 @@
 /* ========================================================
    Funções utilitárias declaradas ANTES do DOMContentLoaded
 ======================================================== */
-import { GETAnnotation, PUTAnnotation } from "./api.js";
+import { GETAnnotation, PUTAnnotation, DELETEAnnotation } from "./api.js";
 
-/* --- Excluir nota (ainda só no localStorage) ------------ */
-function excluirNota(id) {
-  console.log("Excluindo nota com id:", id);
-  let anotacoes = JSON.parse(localStorage.getItem("anotacoes")) || [];
-  anotacoes = anotacoes.filter(n => Number(n.id) !== Number(id));
-  localStorage.setItem("anotacoes", JSON.stringify(anotacoes));
-  location.reload();
+/* --- Excluir nota via API (DELETE) ------------ */
+async function excluirNota(id) {
+  const confirmacao = confirm("Tem certeza que deseja excluir esta anotação?");
+  if (!confirmacao) return;
+
+  try {
+    const sucesso = await DELETEAnnotation("http://localhost:5145/api/Annotation", id);
+
+    if (sucesso) {
+      alert("Anotação excluída com sucesso.");
+      location.reload();
+    } else {
+      alert("Erro ao excluir anotação. Tente novamente.");
+    }
+  } catch (error) {
+    console.error("Erro ao excluir anotação:", error);
+    alert("Erro ao excluir anotação.");
+  }
 }
 
 /* --- Abrir modal de edição*/

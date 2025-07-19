@@ -14,26 +14,6 @@ async function GETAnnotation(url) {
   }
 };
 
-async function PUTAnnotation(url, annotationData) {
-  try {
-    const response = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(annotationData)
-    });
-
-    if (!response.ok)
-      throw new Error(`Erro ao atualizar: ${response.status} - ${response.statusText}`);
-
-    return true;
-  } catch (error) {
-    console.error("Erro ao editar anotação:", error);
-    return false;
-  }
-};
-
 async function POSTAnnotation(url, anotacao) {
   {
     try {
@@ -57,6 +37,43 @@ async function POSTAnnotation(url, anotacao) {
       throw error;
     }
   }
-}
+};
 
-export { GETAnnotation, POSTAnnotation, PUTAnnotation };
+async function PUTAnnotation(url, annotationData) {
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(annotationData)
+    });
+
+    if (!response.ok)
+      throw new Error(`Erro ao atualizar: ${response.status} - ${response.statusText}`);
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao editar anotação:", error);
+    return false;
+  }
+};
+
+async function DELETEAnnotation(url, id) {
+  try {
+    const response = await fetch(`${url}/${id}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok)
+      throw new Error(`Erro ao excluir: ${response.status} - ${response.statusText}`);
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao excluir anotação:", error);
+    return false;
+  }
+};
+
+
+export { GETAnnotation, POSTAnnotation, PUTAnnotation, DELETEAnnotation };
