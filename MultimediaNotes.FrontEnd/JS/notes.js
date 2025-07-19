@@ -1,7 +1,7 @@
 /* ========================================================
    Funções utilitárias declaradas ANTES do DOMContentLoaded
 ======================================================== */
-import { GETAnnotation, PUTAnnotation, DELETEAnnotation } from "./api.js";
+import { GETAnnotation, PUTAnnotation, DELETEAnnotation, GETAnnotationById } from "./api.js";
 
 /* --- Excluir nota via API (DELETE) ------------ */
 async function excluirNota(id) {
@@ -23,24 +23,26 @@ async function excluirNota(id) {
   }
 }
 
-/* --- Abrir modal de edição*/
-function abrirEdicao(id) {
-  const anotacoes = JSON.parse(localStorage.getItem("anotacoes")) || [];
-  const nota = anotacoes.find(n => Number(n.id) === Number(id));
-  if (!nota) return;
+/* --- Abrir modal de edição via API ------------ */
+async function abrirEdicao(id) {
+  try {
+    const nota = await GETAnnotationById("http://localhost:5145/api/Annotation", id);
 
-  document.getElementById("editId").value = nota.id;
-  document.getElementById("editTitle").value = nota.title;
-  document.getElementById("editContent").value = nota.content;
-  document.getElementById("editCategory").value = nota.category || "";
-  document.getElementById("editReminder").value = nota.reminder
-    ? new Date(nota.reminder).toISOString().slice(0, 16)
-    : "";
-  document.getElementById("editPriority").value = nota.priority;
+    document.getElementById("editId").value = nota.id;
+    document.getElementById("editTitle").value = nota.title;
+    document.getElementById("editContent").value = nota.content;
+    document.getElementById("editCategory").value = nota.category || "";
+    document.getElementById("editReminder").value = nota.reminder
+      ? new Date(nota.reminder).toISOString().slice(0, 16)
+      : "";
+    document.getElementById("editPriority").value = nota.priority;
 
-  const modal = document.getElementById("editModal");
-  modal.classList.remove("hidden");
-  modal.classList.add("open");
+    const modal = document.getElementById("editModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("open");
+  } catch (error) {
+    alert("Erro ao carregar anotação para edição.");
+  }
 }
 
 /* --- Fechar modal de edição */
@@ -69,9 +71,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const apiData = await GETAnnotation("http://localhost:5145/api/Annotation");
     let anotacoes = apiData.$values || [];
-
-    // Salva no localStorage para manter compatibilidade com o restante do código
-    localStorage.setItem("anotacoes", JSON.stringify(anotacoes));
 
     /* ---------- renderização inicial ---------- */
     if (anotacoes.length === 0) {
@@ -142,4 +141,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     notesContainer.innerHTML = `<p>Erro ao carregar anotações da API.</p>`;
   }
 });
-

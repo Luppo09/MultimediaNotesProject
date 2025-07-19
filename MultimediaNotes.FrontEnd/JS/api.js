@@ -14,6 +14,18 @@ async function GETAnnotation(url) {
   }
 };
 
+async function GETAnnotationById(url, id) {
+  try {
+    const response = await fetch(`${url}/${id}`);
+    if (!response.ok) throw new Error(`Erro: ${response.status}`);
+    console.log(`response: ${response}`)
+    return await response.json();
+  } catch (error) {
+    console.error("Erro ao buscar anotação por ID:", error);
+    return null;
+  }
+};
+
 async function POSTAnnotation(url, anotacao) {
   {
     try {
@@ -76,4 +88,4 @@ async function DELETEAnnotation(url, id) {
 };
 
 
-export { GETAnnotation, POSTAnnotation, PUTAnnotation, DELETEAnnotation };
+export { GETAnnotation, GETAnnotationById, POSTAnnotation, PUTAnnotation, DELETEAnnotation };
