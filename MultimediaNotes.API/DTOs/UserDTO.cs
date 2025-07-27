@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MultimediaNotes.API.DTOs
 {
@@ -18,11 +20,11 @@ namespace MultimediaNotes.API.DTOs
 
         [Required(ErrorMessage = "Password is required.")]
         [StringLength(255, ErrorMessage = "Password hash cannot exceed 255 characters.")]
-        
-
         public string PasswordHash { get; set; }
 
 
+        [ValidateNever]
+        [JsonIgnore]
         public List<AnnotationDTO> Annotations { get; set; }
     }
 }
