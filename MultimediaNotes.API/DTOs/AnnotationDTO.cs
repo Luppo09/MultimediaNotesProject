@@ -19,9 +19,9 @@ namespace MultimediaNotes.API.DTOs
         public string Category { get; set; }
 
         [Range(1, 3, ErrorMessage = "Priority must be between 1 (Low) and 3 (High).")]
-        public int Priority { get; set; } // 1 = Low, 2 = Medium, 3 = High
+        public int Priority { get; set; } // 1 = Baixo, 2 = Médio, 3 = Alto
 
-        public DateTime? Reminder { get; set; } // Optional reminder
+        public DateTime? Reminder { get; set; } 
 
         [Required(ErrorMessage = "UserId is required.")]
         public int UserId { get; set; }

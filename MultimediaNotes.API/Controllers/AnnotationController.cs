@@ -5,11 +5,13 @@ using MultimediaNotes.API.Models;
 using MultimediaNotes.API.DTOs;
 using AutoMapper;
 using MultimediaNotes.API.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MultimediaNotes.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AnnotationController : ControllerBase
     {
         private readonly IAnnotationService _annotationsService;

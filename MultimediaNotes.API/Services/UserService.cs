@@ -1,60 +1,83 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MultimediaNotes.API.DTOs;
 using MultimediaNotes.API.Models;
-using MultimediaNotes.API.Models.Repositories.Interfaces;
 using MultimediaNotes.API.Services.Interfaces;
 
 namespace MultimediaNotes.API.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(UserManager<User> userManager, IMapper mapper)
         {
-            _userRepository = userRepository;
+            _userManager = userManager;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<UserDTO>> GetAllUsers()
         {
-            var usersEntity = await _userRepository.GetAllUsers();
-            return _mapper.Map<IEnumerable<UserDTO>>(usersEntity);
+            var users = await _userManager.Users.ToListAsync();
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
         public async Task<IEnumerable<UserDTO>> GetUsersWithAnnotations()
         {
-            var usersEntity = await _userRepository.GetUsersWithAnnotations();
-            return _mapper.Map<IEnumerable<UserDTO>>(usersEntity);
+            var users = await _userManager.Users
+                .Include(u => u.Annotations)
+                .ToListAsync();
+            return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
         public async Task<UserDTO> GetUserById(int id)
         {
-            var userEntity = await _userRepository.GetUserById(id);
-            return _mapper.Map<UserDTO>(userEntity);
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            return _mapper.Map<UserDTO>(user);
         }
-
 
         public async Task CreateUser(UserDTO userDTO)
         {
-            var userEntity = _mapper.Map<User>(userDTO);
-            await _userRepository.CreateUser(userEntity);
-            userDTO.Id = userEntity.Id;
+            
+            var user = new User
+            {
+                Name = userDTO.Name,
+                Email = userDTO.Email,
+                UserName = userDTO.Email
+            };
+
+            
+            var tempPassword = "TempPassword123!";
+            var result = await _userManager.CreateAsync(user, tempPassword);
+
+            if (result.Succeeded)
+            {
+                userDTO.Id = user.Id;
+            }
         }
 
         public async Task UpdateUser(UserDTO userDTO)
         {
-            var userEntity = _mapper.Map<User>(userDTO);
-            await _userRepository.UpdateUser(userEntity);
+            var user = await _userManager.FindByIdAsync(userDTO.Id.ToString());
+            if (user != null)
+            {
+                user.Name = userDTO.Name;
+                user.Email = userDTO.Email;
+                user.UserName = userDTO.Email;
+
+                await _userManager.UpdateAsync(user);
+            }
         }
 
         public async Task DeleteUser(int id)
         {
-            var userEntity = _userRepository.GetUserById(id).Result;
-            await _userRepository.DeleteUser(userEntity.Id);
-
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user != null)
+            {
+                await _userManager.DeleteAsync(user);
+            }
         }
-
     }
 }

@@ -1,39 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MultimediaNotes.API.Models;
 
 namespace MultimediaNotes.API.Context
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Annotation> Annotations { get; set; }
-        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configuração da tabela Usuario
-            modelBuilder.Entity<User>().HasKey(u => u.Id);
+            base.OnModelCreating(modelBuilder); // Importante: chama a configuração base do Identity
 
+            // Configuração adicional do User (além do que o Identity já faz)
             modelBuilder.Entity<User>()
                 .Property(u => u.Name)
                 .HasMaxLength(100)
                 .IsRequired();
 
-            modelBuilder.Entity<User>()
-                .Property(u => u.Email)
-                .HasMaxLength(150)
-                .IsRequired();
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.PasswordHash)
-                .HasMaxLength(255)
-                .IsRequired();
-
-            modelBuilder.Entity<User>()
-                .ToTable("Users");
-
-            // Configuração da tabela Anotacao
+            // Tabela Annotation
             modelBuilder.Entity<Annotation>().HasKey(a => a.Id);
 
             modelBuilder.Entity<Annotation>()
@@ -51,22 +39,26 @@ namespace MultimediaNotes.API.Context
 
             modelBuilder.Entity<Annotation>()
                 .Property(a => a.Priority)
-                .HasDefaultValue(1); // Default prority  = 1 (Low)
+                .HasDefaultValue(1);
 
             modelBuilder.Entity<Annotation>()
                 .HasOne(a => a.User)
                 .WithMany(u => u.Annotations)
-                .HasForeignKey(a => a.UserId) 
+                .HasForeignKey(a => a.UserId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Annotation>()
                 .ToTable("Annotations");
 
-            // Dados iniciais (sem BCrypt dinâmico)
-            modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "Admin", Email = "admin@email.com", PasswordHash = "$2a$10$saltofakehash" }
-            );
+            // Renomear tabelas do Identity
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles");
+            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("UserRoles");
+            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
+            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
+            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
+            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
         }
     }
 }
