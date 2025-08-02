@@ -1,24 +1,39 @@
+import authService from './auth.js';
+
 async function GETAnnotation(url) {
   try {
-    let response = await fetch(url);
+    const response = await authService.authenticatedFetch(url);
+
+    if (!response) {
+      throw new Error('Erro de autenticação');
+    }
 
     if (!response.ok) {
       throw new Error(`Erro na requisição: ${response.status} - ${response.statusText}`);
     }
 
-    let annotations = await response.json();
+    const annotations = await response.json();
     console.log(annotations);
     return annotations;
   } catch (error) {
     console.error("Erro ao buscar anotações:", error);
+    throw error;
   }
 };
 
 async function GETAnnotationById(url, id) {
   try {
-    const response = await fetch(`${url}/${id}`);
-    if (!response.ok) throw new Error(`Erro: ${response.status}`);
-    console.log(`response: ${response}`)
+    const response = await authService.authenticatedFetch(`${url}/${id}`);
+    
+    if (!response) {
+      throw new Error('Erro de autenticação');
+    }
+
+    if (!response.ok) {
+      throw new Error(`Erro: ${response.status}`);
+    }
+
+    console.log(`response: ${response}`);
     return await response.json();
   } catch (error) {
     console.error("Erro ao buscar anotação por ID:", error);
@@ -26,43 +41,63 @@ async function GETAnnotationById(url, id) {
   }
 };
 
-async function POSTAnnotation(url, anotacao) {
-  {
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(anotacao)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao salvar: ${response.status} - ${response.statusText}`);
-      }
-
-      const resultado = await response.json();
-      console.log("Anotação criada:", resultado);
-      return resultado;
-    } catch (error) {
-      console.error("Erro ao criar anotação:", error);
-      throw error;
+async function GETAnnotationsByUserId(url, userId) {
+  try {
+    const response = await authService.authenticatedFetch(`${url}/user/${userId}`);
+    
+    if (!response) {
+      throw new Error('Erro de autenticação');
     }
+
+    if (!response.ok) {
+      throw new Error(`Erro: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Erro ao buscar anotações do usuário:", error);
+    return null;
+  }
+};
+
+async function POSTAnnotation(url, anotacao) {
+  try {
+    const response = await authService.authenticatedFetch(url, {
+      method: "POST",
+      body: JSON.stringify(anotacao)
+    });
+
+    if (!response) {
+      throw new Error('Erro de autenticação');
+    }
+
+    if (!response.ok) {
+      throw new Error(`Erro ao salvar: ${response.status} - ${response.statusText}`);
+    }
+
+    const resultado = await response.json();
+    console.log("Anotação criada:", resultado);
+    return resultado;
+  } catch (error) {
+    console.error("Erro ao criar anotação:", error);
+    throw error;
   }
 };
 
 async function PUTAnnotation(url, annotationData) {
   try {
-    const response = await fetch(url, {
+    const response = await authService.authenticatedFetch(url, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify(annotationData)
     });
 
-    if (!response.ok)
+    if (!response) {
+      throw new Error('Erro de autenticação');
+    }
+
+    if (!response.ok) {
       throw new Error(`Erro ao atualizar: ${response.status} - ${response.statusText}`);
+    }
 
     return true;
   } catch (error) {
@@ -73,12 +108,17 @@ async function PUTAnnotation(url, annotationData) {
 
 async function DELETEAnnotation(url, id) {
   try {
-    const response = await fetch(`${url}/${id}`, {
+    const response = await authService.authenticatedFetch(`${url}/${id}`, {
       method: "DELETE"
     });
 
-    if (!response.ok)
+    if (!response) {
+      throw new Error('Erro de autenticação');
+    }
+
+    if (!response.ok) {
       throw new Error(`Erro ao excluir: ${response.status} - ${response.statusText}`);
+    }
 
     return true;
   } catch (error) {
@@ -88,4 +128,11 @@ async function DELETEAnnotation(url, id) {
 };
 
 
-export { GETAnnotation, GETAnnotationById, POSTAnnotation, PUTAnnotation, DELETEAnnotation };
+export {
+  GETAnnotation,
+  GETAnnotationById,
+  GETAnnotationsByUserId,
+  POSTAnnotation,
+  PUTAnnotation,
+  DELETEAnnotation
+};
