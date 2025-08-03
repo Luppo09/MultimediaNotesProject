@@ -79,26 +79,46 @@ class AuthService {
   }
 
   // Registro de usuário
-  async register(name, email, password) {
+  async register(name, email, password, confirmPassword) {
     try {
+      console.log('Dados para registro:', { 
+        name, 
+        email, 
+        password: '***',
+        confirmPassword: '***'
+      });
+
       const response = await fetch(`${this.baseUrl}/Auth/register`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ 
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          password,
+          confirmPassword
+        })
       });
 
-      const data = await response.json();
+      console.log('Status da resposta:', response.status);
+      console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
 
-      if (data.success) {
+      const data = await response.json();
+      console.log('Dados da resposta:', data);
+
+      if (response.ok && data.success) {
         return { success: true, data };
       } else {
-        return { success: false, message: data.message };
+        return { 
+          success: false, 
+          message: data.message || data.errors || 'Erro desconhecido'
+        };
       }
     } catch (error) {
       console.error('Erro no registro:', error);
-      return { success: false, message: 'Erro de conexão' };
+      return { success: false, message: 'Erro de conexão com o servidor' };
     }
   }
 

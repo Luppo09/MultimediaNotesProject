@@ -85,6 +85,20 @@ button:hover {
   
 }
 
+.form-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.form-footer a {
+  color: #4632ca;
+  text-decoration: none;
+}
+
+.form-footer a:hover {
+  text-decoration: underline;
+}
+
 @keyframes moveBackground {
   0% {
     background-position: 0% 50%;
