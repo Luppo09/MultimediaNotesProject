@@ -8,6 +8,16 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  /* --- Realizar LOGOUT */
+  function logout() {
+    if (confirm('Tem certeza que deseja sair?')) {
+      authService.logout();
+    }
+  };
+
+  //Realizar LOGOUT
+  document.getElementById("logoutButton").addEventListener("click", logout);
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -62,5 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
       submitButton.disabled = false;
       submitButton.textContent = 'Salvar';
     }
+
+
+
+
   });
 });

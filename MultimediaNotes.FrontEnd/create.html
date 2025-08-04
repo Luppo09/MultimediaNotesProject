@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Criar Anotação</title>
   <link rel="stylesheet" href="css/style.css" />
-</head> 
+</head>
+
 <body>
   <header>
     <h1>Criar Nova Anotação</h1>
-    <a href="notes.html">Ver Minhas Anotações</a>
+    <div class="header-actions">
+      <a href="notes.html">Ver Minhas Anotações</a>
+
+      <div class="user-menu">
+        <div class="user-info" onclick="toggleUserMenu()">
+          <span id="userName">Usuário</span>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+
+        <div id="userDropdown" class="dropdown-content">
+          <button class="dropdown-item" onclick="configuracoes()">Configurações</button>
+          <button class="dropdown-item logout" id="logoutButton">Sair</button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -31,6 +47,29 @@
     </section>
   </main>
 
-  <script type="module" src="js/create.js"></script>
+  <script type="module" src="/JS/create.js"></script>
+  
+  <script>
+    // Alternar Menu do Usuário
+    function toggleUserMenu() {
+      const dropdown = document.getElementById('userDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    function configuracoes() {
+      console.log('Implemento depois');
+    }
+
+    // Fechar Dropdown
+    window.onclick = function(event) {
+      if (!event.target.matches('.user-info') && !event.target.matches('.user-info *')) {
+        const dropdowns = document.getElementsByClassName('dropdown-content');
+        for (let i = 0; i < dropdowns.length; i++) {
+          dropdowns[i].classList.remove('show');
+        }
+      }
+    }
+  </script>
 </body>
+
 </html>
