@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Minhas Anotações</title>
   <link rel="stylesheet" href="\CSS\style.css" />
 </head>
@@ -16,7 +17,7 @@
       <textarea id="editContent" required></textarea>
       <input type="text" id="editCategory" />
       <input type="datetime-local" id="editReminder" />
-      <select id="editPriority"> 
+      <select id="editPriority">
         <option value="1">Baixa</option>
         <option value="2">Média</option>
         <option value="3">Alta</option>
@@ -30,18 +31,54 @@
 <body>
   <header>
     <h1>Minhas Anotações</h1>
-    <a href="create.html">Criar Nova</a>
+    <div class="header-actions">
+      <a href="create.html">Criar Nova</a>
+
+      <div class="user-menu">
+        <div class="user-info" onclick="toggleUserMenu()">
+          <span id="userName">Usuário</span>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+        
+        <div id="userDropdown" class="dropdown-content">
+          <button class="dropdown-item" onclick="configuracoes()">Configurações</button>
+          <button class="dropdown-item logout" id="logoutButton">Sair</button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main>
     <section id="note-list" class="card">
       <div id="notesContainer">
         <!-- Notas serão exibidas aqui -->
-
       </div>
     </section>
   </main>
 
   <script type="module" src="/JS/notes.js"></script>
+  
+  <script>
+    // Alternar Menu do Usuário
+    function toggleUserMenu() {
+      const dropdown = document.getElementById('userDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    function configuracoes() {
+      console.log('Implemento depois');
+    }
+
+    // Fechar Dropdown
+    window.onclick = function(event) {
+      if (!event.target.matches('.user-info') && !event.target.matches('.user-info *')) {
+        const dropdowns = document.getElementsByClassName('dropdown-content');
+        for (let i = 0; i < dropdowns.length; i++) {
+          dropdowns[i].classList.remove('show');
+        }
+      }
+    }
+  </script>
 </body>
+
 </html>

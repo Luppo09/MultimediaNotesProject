@@ -67,6 +67,15 @@ function fecharModal() {
   );
 }
 
+/* --- Realizar LOGOUT */
+function logout() {
+  if (confirm('Tem certeza que deseja sair?')) {
+    authService.logout();
+  }
+}
+
+window.logout = logout;
+
 /* ========================================================
    Fluxo principal
 ======================================================== */
@@ -94,9 +103,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userId = user.id;
 
     const apiData = await GETAnnotationsByUserId("http://localhost:5145/api/Annotation", userId);
-    
+
     let anotacoes = [];
-    
+
     if (apiData) {
       // Verificar se é um array direto ou se tem $values
       anotacoes = apiData.$values || apiData || [];
@@ -115,10 +124,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const div = document.createElement("div");
       div.className = "note";
       div.dataset.priority = nota.priority;
-      
+
       const priorityText = {
         1: 'Baixa',
-        2: 'Média', 
+        2: 'Média',
         3: 'Alta'
       };
 
@@ -174,7 +183,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         const updated = await PUTAnnotation("http://localhost:5145/api/Annotation", notaEditada);
-        
+
         if (updated) {
           alert("Anotação atualizada com sucesso!");
           fecharModal();
@@ -195,4 +204,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Erro ao carregar anotações:", error);
     notesContainer.innerHTML = `<p>Erro ao carregar anotações. <button onclick="location.reload()">Tentar novamente</button></p>`;
   }
+  //Realizar LOGOUT
+  document.getElementById("logoutButton").addEventListener("click", logout);
 });

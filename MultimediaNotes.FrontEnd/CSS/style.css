@@ -45,6 +45,97 @@ header a:hover {
   background: rgba(255, 255, 255, .4);
 }
 
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* --------------------------------------------------
+   USER MENU
+-------------------------------------------------- */
+.user-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: background .2s;
+  color: #fff;
+  font-size: .9rem;
+}
+
+.user-info:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+}
+
+.user-menu.active .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* --------------------------------------------------
+   DROPDOWN MENU
+-------------------------------------------------- */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  background-color: #fff;
+  min-width: 180px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  z-index: 1000;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.dropdown-content.show {
+  display: block;
+  animation: slideDown 0.3s ease;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.8rem 1.2rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+  background: none;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item.logout {
+  color: #ff3b30;
+  border-top: 1px solid #eee;
+}
+
+.dropdown-item.logout:hover {
+  background-color: #fff5f5;
+}
+
 /* --------------------------------------------------
    FORMULÁRIOS
 -------------------------------------------------- */
@@ -63,7 +154,7 @@ form button {
 }
 
 form button {
-  background: linear-gradient(92.88deg, #455EB5 9.16%, #5643CC 43.89%, #673FD7 64.72%);;
+  background: linear-gradient(92.88deg, #455EB5 9.16%, #5643CC 43.89%, #673FD7 64.72%);
   color: #fff;
   font-weight: bold;
   cursor: pointer;
@@ -89,7 +180,6 @@ form button:hover {
   max-width: 600px;
   width: 100%;
   box-sizing: border-box;
-  ;
   box-shadow: 0 2px 5px rgba(0, 0, 0, .05);
   border-radius: 4px;
 }
@@ -111,12 +201,24 @@ form button:hover {
   overflow-wrap: break-word;
   max-width: 100%;
   white-space: pre-wrap;
-  /* Mantém quebras de linha e formatações */
 }
 
 @media (max-width: 600px) {
   .note {
     width: 100%;
+  }
+  
+  .header-actions {
+    gap: 0.5rem;
+  }
+  
+  .user-info {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .dropdown-content {
+    min-width: 150px;
   }
 }
 
@@ -208,8 +310,19 @@ form button:hover {
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* --------------------------------------------------
-   COMPONENTE CARD (caso use em outras telas)
+   COMPONENTE CARD 
 -------------------------------------------------- */
 .card {
   background: #fff;
