@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,20 +25,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Configuração do Identity
 builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 {
-    // Configurações de Password
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
     options.Password.RequiredUniqueChars = 1;
-
-    // Configurações de Bloqueio
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
-
-    // Configurações de User
     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
     options.User.RequireUniqueEmail = true;
 })
@@ -82,6 +78,12 @@ builder.Services.AddCors(options =>
         });
 });
 
+// Configuração para uploads
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 52428800; // 50 MB
+});
+
 // Adiciona os serviços ao contêiner
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -100,7 +102,6 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API para gerenciamento de anotações multimídia"
     });
 
-    // Configuração JWT no Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header usando Bearer scheme. \r\n\r\n " +
@@ -136,12 +137,14 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Dependências dos repositórios
 builder.Services.AddScoped<IAnnotationRepository, AnnotationRepository>();
+builder.Services.AddScoped<IMediaFileRepository, MediaFileRepository>();
 
 // Dependências dos Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAnnotationService, AnnotationService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMediaFileService, MediaFileService>();
 
 var app = builder.Build();
 
@@ -155,15 +158,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "MultimediaNotes API v1");
-        options.RoutePrefix = string.Empty; 
+        options.RoutePrefix = string.Empty;
     });
 }
 
 app.UseHttpsRedirection();
 
-
-app.UseAuthentication(); 
-app.UseAuthorization();  
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

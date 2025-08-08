@@ -29,5 +29,7 @@ namespace MultimediaNotes.API.DTOs
         [ValidateNever]
         [JsonIgnore]
         public UserDTO User { get; set; }
+
+        public ICollection<MediaFileDTO> MediaFiles { get; set; } = new List<MediaFileDTO>();
     }
 }

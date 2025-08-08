@@ -10,5 +10,7 @@
         public DateTime? Reminder { get; set; } 
         public int UserId { get; set; }
         public User User { get; set; }
+
+        public ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
     }
 }

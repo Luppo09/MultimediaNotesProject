@@ -2,6 +2,14 @@
 
 namespace MultimediaNotes.API.DTOs
 {
+    public class AuthResponseDto
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public string? Token { get; set; }
+        public UserDTO? User { get; set; }
+    }
+
     public class LoginRequestDto
     {
         [Required(ErrorMessage = "Email é obrigatório")]
@@ -12,6 +20,7 @@ namespace MultimediaNotes.API.DTOs
         [MinLength(6, ErrorMessage = "Senha deve ter pelo menos 6 caracteres")]
         public string Password { get; set; } = string.Empty;
     }
+
 
     public class RegisterRequestDto
     {
@@ -32,13 +41,5 @@ namespace MultimediaNotes.API.DTOs
         [Required(ErrorMessage = "Confirmação de senha é obrigatória")]
         [Compare("Password", ErrorMessage = "Senha e confirmação devem ser iguais")]
         public string ConfirmPassword { get; set; } = string.Empty;
-    }
-
-    public class AuthResponseDto
-    {
-        public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public string? Token { get; set; }
-        public UserDTO? User { get; set; }
     }
 }

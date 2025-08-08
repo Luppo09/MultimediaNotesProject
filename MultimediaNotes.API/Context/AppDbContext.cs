@@ -10,6 +10,7 @@ namespace MultimediaNotes.API.Context
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Annotation> Annotations { get; set; }
+        public DbSet<MediaFile> MediaFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,6 +51,54 @@ namespace MultimediaNotes.API.Context
 
             modelBuilder.Entity<Annotation>()
                 .ToTable("Annotations");
+
+            //Tabela MediaFile
+
+            modelBuilder.Entity<MediaFile>().HasKey(m => m.Id);
+
+            modelBuilder.Entity<MediaFile>()
+                .Property(m => m.FileName)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            modelBuilder.Entity<MediaFile>()
+                .Property(m => m.FilePath)
+                .HasMaxLength(500) // Caminho pode ser longo
+                .IsRequired();
+
+            modelBuilder.Entity<MediaFile>()
+                .Property(m => m.FileType)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            modelBuilder.Entity<MediaFile>()
+                .Property(m => m.MimeType)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelBuilder.Entity<MediaFile>()
+                .Property(m => m.FileSize)
+                .IsRequired();
+
+            // Relacionamento Annotation -> MediaFiles (1:N)
+            modelBuilder.Entity<MediaFile>()
+                .HasOne(m => m.Annotation)
+                .WithMany(a => a.MediaFiles)
+                .HasForeignKey(m => m.AnnotationId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade); // Se a anotação for deletada, os arquivos também serão
+
+            modelBuilder.Entity<MediaFile>()
+                .ToTable("MediaFiles");
+
+            // Índices para melhor performance
+            modelBuilder.Entity<MediaFile>()
+                .HasIndex(m => m.AnnotationId)
+                .HasDatabaseName("IX_MediaFiles_AnnotationId");
+
+            modelBuilder.Entity<MediaFile>()
+                .HasIndex(m => m.FileType)
+                .HasDatabaseName("IX_MediaFiles_FileType");
 
             // Renomear tabelas do Identity
             modelBuilder.Entity<User>().ToTable("Users");

@@ -9,6 +9,7 @@ namespace MultimediaNotes.API.DTOs.Mappings
         {
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<Annotation, AnnotationDTO>().ReverseMap();
+            CreateMap<MediaFile, MediaFileDTO>().ReverseMap();
         }
     }
 }
