@@ -265,7 +265,7 @@ form button:hover {
 }
 
 /* --------------------------------------------------
-   PREVIEW DE ARQUIVOS
+   PREVIEW DE ARQUIVOS - ESTILOS ORIGINAIS
 -------------------------------------------------- */
 #filePreviewContainer {
   margin-top: 20px;
@@ -274,12 +274,40 @@ form button:hover {
   gap: 15px;
 }
 
+/* Sobrescrevendo para compatibilidade com JS */
+#filePreviewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 15px;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  min-height: 60px;
+}
+
+#filePreviewContainer:empty::after {
+  content: "Nenhum arquivo selecionado";
+  color: #999;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* --------------------------------------------------
+   PREVIEW DE ARQUIVOS - ITENS
+-------------------------------------------------- */
 .file-preview-item {
   position: relative;
+  display: inline-block;
+  margin: 10px;
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 15px;
-  background-color: white;
+  background-color: #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: box-shadow 0.3s ease;
   animation: fadeIn 0.3s ease-out;
@@ -289,26 +317,43 @@ form button:hover {
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+.file-preview {
+  text-align: center;
+}
+
 .file-preview img {
   width: 100%;
+  max-width: 200px;
   max-height: 200px;
   object-fit: cover;
   border-radius: 5px;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .file-preview audio {
   width: 100%;
+  max-width: 300px;
   margin-bottom: 10px;
 }
 
+.file-preview.error {
+  border-color: #feb2b2;
+  background-color: #fff5f5;
+}
+
+.file-preview.error .file-info {
+  color: #c53030;
+}
+
 .file-info {
+  margin-top: 8px;
+  font-size: 0.9em;
   text-align: left;
 }
 
 .file-info p {
-  margin: 5px 0;
-  font-size: 14px;
+  margin: 4px 0;
   word-break: break-word;
 }
 
@@ -316,11 +361,14 @@ form button:hover {
   color: #333;
 }
 
+/* --------------------------------------------------
+   BOTÃO REMOVER ARQUIVO
+-------------------------------------------------- */
 .remove-file-btn {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: #dc3545;
+  background: #ff4757;
   color: white;
   border: none;
   border-radius: 50%;
@@ -328,14 +376,15 @@ form button:hover {
   height: 25px;
   cursor: pointer;
   font-size: 16px;
+  line-height: 1;
+  transition: background-color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s;
 }
 
 .remove-file-btn:hover {
-  background-color: #c82333;
+  background: #ff3742;
 }
 
 /* --------------------------------------------------
