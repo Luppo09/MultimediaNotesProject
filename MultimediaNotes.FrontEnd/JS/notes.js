@@ -1,6 +1,9 @@
 import { GETAnnotationsByUserId, PUTAnnotation, DELETEAnnotation, GETAnnotationById } from "./api.js";
-import { getMediaFilesByAnnotation, deleteMediaFile, createFilePreview } from "./mediaFileApi.js";
+import { getMediaFilesByAnnotation, deleteMediaFile, createFilePreview, uploadMediaFile, validateFile } from "./mediaFileApi.js";
 import authService from "./auth.js";
+
+// Variável global para armazenar novos arquivos selecionados no modal
+let editSelectedFiles = [];
 
 /* --- Excluir nota via API (DELETE) ------------ */
 async function excluirNota(id) {
@@ -84,6 +87,190 @@ async function loadMediaFiles(annotationId, container) {
   }
 }
 
+/* --- Configurar upload de arquivos no modal de edição --- */
+function setupEditFileUpload() {
+  const editFileInput = document.getElementById('editFileInput');
+  const editPreviewContainer = document.getElementById('editFilePreviewContainer');
+
+  if (!editFileInput || !editPreviewContainer) {
+    console.warn('Elementos de upload do modal de edição não encontrados');
+    return;
+  }
+
+  // Event listener para seleção de arquivos
+  editFileInput.addEventListener('change', handleEditFileSelection);
+
+  // Configurar drag and drop na seção de upload
+  const uploadSection = document.getElementById('editUploadSection');
+  if (uploadSection) {
+    setupEditDragAndDrop(uploadSection, editFileInput);
+  }
+}
+
+/* --- Configurar drag and drop para o modal de edição --- */
+function setupEditDragAndDrop(uploadSection, fileInput) {
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    uploadSection.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    uploadSection.addEventListener(eventName, () => {
+      uploadSection.classList.add('drag-over');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    uploadSection.addEventListener(eventName, () => {
+      uploadSection.classList.remove('drag-over');
+    }, false);
+  });
+
+  uploadSection.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    handleEditFileSelection({ target: { files } });
+  }, false);
+}
+
+/* --- Manipular seleção de arquivos no modal de edição --- */
+async function handleEditFileSelection(event) {
+  const files = Array.from(event.target.files);
+  const previewContainer = document.getElementById('editFilePreviewContainer');
+  
+  if (!files.length) return;
+
+  console.log(`Arquivos selecionados para edição: ${files.length}`);
+
+  for (const file of files) {
+    try {
+      // Validar arquivo
+      validateFile(file);
+      
+      // Adicionar à lista de arquivos selecionados
+      editSelectedFiles.push(file);
+      
+      // Criar preview
+      const previewItem = document.createElement('div');
+      previewItem.className = 'file-preview-item';
+      
+      const preview = await createFilePreview(file);
+      
+      // Botão para remover arquivo da seleção
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-file-btn';
+      removeBtn.innerHTML = '×';
+      removeBtn.title = 'Remover arquivo';
+      removeBtn.onclick = () => {
+        // Remover da lista
+        const index = editSelectedFiles.indexOf(file);
+        if (index > -1) {
+          editSelectedFiles.splice(index, 1);
+        }
+        // Remover preview
+        previewItem.remove();
+      };
+      
+      previewItem.appendChild(preview);
+      previewItem.appendChild(removeBtn);
+      previewContainer.appendChild(previewItem);
+      
+    } catch (error) {
+      console.error('Erro ao processar arquivo:', error);
+      alert(`Erro no arquivo "${file.name}": ${error.message}`);
+    }
+  }
+  
+  // Limpar input para permitir selecionar os mesmos arquivos novamente
+  event.target.value = '';
+}
+
+/* --- Fazer upload dos novos arquivos selecionados --- */
+async function uploadEditSelectedFiles(annotationId) {
+  if (editSelectedFiles.length === 0) {
+    return true; // Nenhum arquivo para upload, sucesso
+  }
+
+  const progressDiv = document.getElementById('editUploadProgress');
+  const statusElement = document.getElementById('editUploadStatus');
+  const progressFill = document.getElementById('editProgressFill');
+
+  try {
+    progressDiv.style.display = 'block';
+    let uploadedCount = 0;
+    const totalFiles = editSelectedFiles.length;
+
+    for (const file of editSelectedFiles) {
+      try {
+        statusElement.textContent = `Enviando ${file.name}... (${uploadedCount + 1}/${totalFiles})`;
+        
+        // Atualizar barra de progresso
+        const progress = ((uploadedCount) / totalFiles) * 100;
+        progressFill.style.width = `${progress}%`;
+
+        // Fazer upload
+        await uploadMediaFile(annotationId, file);
+        uploadedCount++;
+        
+        console.log(`Arquivo ${file.name} enviado com sucesso`);
+
+      } catch (error) {
+        console.error(`Erro ao enviar ${file.name}:`, error);
+        throw new Error(`Falha no upload de "${file.name}": ${error.message}`);
+      }
+    }
+
+    // Upload completo
+    progressFill.style.width = '100%';
+    statusElement.textContent = `Upload concluído! ${uploadedCount} arquivo(s) enviado(s).`;
+    
+    // Limpar lista de arquivos selecionados
+    editSelectedFiles = [];
+    
+    setTimeout(() => {
+      progressDiv.style.display = 'none';
+      progressFill.style.width = '0%';
+    }, 2000);
+
+    return true;
+
+  } catch (error) {
+    console.error('Erro no upload:', error);
+    statusElement.textContent = `Erro no upload: ${error.message}`;
+    statusElement.style.color = '#dc3545';
+    
+    setTimeout(() => {
+      progressDiv.style.display = 'none';
+      progressFill.style.width = '0%';
+      statusElement.style.color = '';
+    }, 5000);
+
+    throw error;
+  }
+}
+
+/* --- Limpar seleção de arquivos do modal --- */
+function clearEditFileSelection() {
+  editSelectedFiles = [];
+  const previewContainer = document.getElementById('editFilePreviewContainer');
+  if (previewContainer) {
+    previewContainer.innerHTML = '';
+  }
+  
+  const fileInput = document.getElementById('editFileInput');
+  if (fileInput) {
+    fileInput.value = '';
+  }
+  
+  const progressDiv = document.getElementById('editUploadProgress');
+  if (progressDiv) {
+    progressDiv.style.display = 'none';
+  }
+}
+
 /* --- Abrir modal de edição via API ------------ */
 async function abrirEdicao(id) {
   try {
@@ -103,6 +290,9 @@ async function abrirEdicao(id) {
       : "";
     document.getElementById("editPriority").value = nota.priority;
 
+    // Limpar arquivos selecionados anteriormente
+    clearEditFileSelection();
+
     // Carregar arquivos de mídia no modal
     const editMediaContainer = document.getElementById("editMediaContainer");
     if (editMediaContainer) {
@@ -113,6 +303,10 @@ async function abrirEdicao(id) {
     const modal = document.getElementById("editModal");
     modal.classList.remove("hidden");
     modal.classList.add("open");
+
+    // Configurar upload após abrir modal
+    setupEditFileUpload();
+    
   } catch (error) {
     console.error("Erro ao carregar anotação:", error);
     alert("Erro ao carregar anotação para edição.");
@@ -123,6 +317,9 @@ async function abrirEdicao(id) {
 function fecharModal() {
   const modal = document.getElementById("editModal");
   const content = modal.querySelector(".modal-content");
+
+  // Limpar seleção de arquivos ao fechar
+  clearEditFileSelection();
 
   modal.classList.add("closing");
 
@@ -249,25 +446,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       };
 
       const submitButton = e.target.querySelector('button[type="submit"]');
+      const originalText = submitButton.textContent;
       submitButton.disabled = true;
       submitButton.textContent = 'Salvando...';
 
       try {
+        // Primeiro, atualizar a anotação
         const updated = await PUTAnnotation("http://localhost:5145/api/Annotation", notaEditada);
 
-        if (updated) {
-          alert("Anotação atualizada com sucesso!");
-          fecharModal();
-          location.reload();
-        } else {
-          alert("Erro ao salvar alterações. Tente novamente.");
+        if (!updated) {
+          throw new Error("Falha ao atualizar anotação");
         }
+
+        // Depois, fazer upload dos novos arquivos (se houver)
+        if (editSelectedFiles.length > 0) {
+          submitButton.textContent = 'Enviando arquivos...';
+          await uploadEditSelectedFiles(id);
+        }
+
+        alert("Anotação atualizada com sucesso!");
+        fecharModal();
+        location.reload();
+
       } catch (error) {
         console.error("Erro ao atualizar anotação:", error);
-        alert("Erro ao salvar alterações. Tente novamente.");
+        alert(`Erro ao salvar alterações: ${error.message}`);
       } finally {
         submitButton.disabled = false;
-        submitButton.textContent = 'Salvar Alterações';
+        submitButton.textContent = originalText;
       }
     });
 
@@ -275,6 +481,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Erro ao carregar anotações:", error);
     notesContainer.innerHTML = `<p>Erro ao carregar anotações. <button onclick="location.reload()">Tentar novamente</button></p>`;
   }
+  
   //Realizar LOGOUT
   document.getElementById("logoutButton").addEventListener("click", logout);
 });

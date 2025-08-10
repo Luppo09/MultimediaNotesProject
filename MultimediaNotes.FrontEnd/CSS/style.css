@@ -232,6 +232,13 @@ form button:hover {
   background-color: #f0f8ff;
 }
 
+.media-upload-section h4 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #333;
+  text-align: left;
+}
+
 .file-input-wrapper {
   position: relative;
   overflow: hidden;
@@ -243,6 +250,10 @@ form button:hover {
   left: -9999px;
 }
 
+.file-input {
+  display: none;
+}
+
 .file-input-label {
   background-color: #007bff;
   color: white;
@@ -252,6 +263,8 @@ form button:hover {
   display: inline-block;
   transition: background-color 0.3s;
   font-size: 14px;
+  border: none;
+  font-family: inherit;
 }
 
 .file-input-label:hover {
@@ -262,24 +275,58 @@ form button:hover {
   margin-top: 10px;
   font-size: 13px;
   color: #666;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------
+   UPLOAD PROGRESS
+-------------------------------------------------- */
+.upload-progress {
+  display: none;
+  margin-top: 15px;
+  padding: 15px;
+  background: #e9ecef;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.upload-progress.show {
+  display: block;
+}
+
+.upload-status {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  width: 0%;
+  transition: width 0.3s ease;
+  border-radius: 10px;
 }
 
 /* --------------------------------------------------
    PREVIEW DE ARQUIVOS - ESTILOS ORIGINAIS
 -------------------------------------------------- */
-#filePreviewContainer {
+#filePreviewContainer,
+#editFilePreviewContainer {
   margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 15px;
-}
-
-/* Sobrescrevendo para compatibilidade com JS */
-#filePreviewContainer {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 15px;
   padding: 15px;
   border: 1px dashed #ccc;
   border-radius: 8px;
@@ -287,7 +334,8 @@ form button:hover {
   min-height: 60px;
 }
 
-#filePreviewContainer:empty::after {
+#filePreviewContainer:empty::after,
+#editFilePreviewContainer:empty::after {
   content: "Nenhum arquivo selecionado";
   color: #999;
   font-style: italic;
@@ -303,7 +351,7 @@ form button:hover {
 .file-preview-item {
   position: relative;
   display: inline-block;
-  margin: 10px;
+  margin: 5px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -311,6 +359,7 @@ form button:hover {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: box-shadow 0.3s ease;
   animation: fadeIn 0.3s ease-out;
+  max-width: 200px;
 }
 
 .file-preview-item:hover {
@@ -323,18 +372,18 @@ form button:hover {
 
 .file-preview img {
   width: 100%;
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 180px;
+  max-height: 150px;
   object-fit: cover;
   border-radius: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   cursor: pointer;
 }
 
 .file-preview audio {
   width: 100%;
-  max-width: 300px;
-  margin-bottom: 10px;
+  max-width: 180px;
+  margin-bottom: 8px;
 }
 
 .file-preview.error {
@@ -348,12 +397,12 @@ form button:hover {
 
 .file-info {
   margin-top: 8px;
-  font-size: 0.9em;
+  font-size: 0.85em;
   text-align: left;
 }
 
 .file-info p {
-  margin: 4px 0;
+  margin: 2px 0;
   word-break: break-word;
 }
 
@@ -483,7 +532,7 @@ form button:hover {
   margin-top: 15px;
   padding-top: 15px;
   border-top: 1px solid #eee;
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
@@ -491,6 +540,45 @@ form button:hover {
   margin: 0 0 10px 0;
   font-size: 14px;
   color: #666;
+}
+
+/* Estilos específicos para o modal de edição */
+.modal-content .media-upload-section {
+  margin-top: 15px;
+  padding: 15px;
+}
+
+.modal-content .file-input-label {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.modal-content .file-upload-info {
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.modal-content #editFilePreviewContainer {
+  padding: 10px;
+  min-height: 40px;
+}
+
+.modal-content .file-preview-item {
+  max-width: 150px;
+  padding: 8px;
+}
+
+.modal-content .file-preview img {
+  max-width: 130px;
+  max-height: 100px;
+}
+
+.modal-content .file-preview audio {
+  max-width: 130px;
+}
+
+.modal-content .file-info {
+  font-size: 0.75em;
 }
 
 /* --------------------------------------------------
@@ -536,7 +624,9 @@ form button:hover {
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px; /* Aumentado para acomodar uploads */
+  max-height: 90vh;
+  overflow-y: auto;
   opacity: 0;
   transform: scale(.95) translateY(30px);
   animation: slide-fwd .3s ease-out forwards;
@@ -597,13 +687,30 @@ form button:hover {
    MEDIA QUERIES / RESPONSIVO
 -------------------------------------------------- */
 @media (max-width: 768px) {
-  #filePreviewContainer {
-    grid-template-columns: 1fr;
-    gap: 10px;
+  .modal-content {
+    width: 95%;
+    max-width: none;
+    padding: 1.5rem;
+  }
+
+  #filePreviewContainer,
+  #editFilePreviewContainer {
+    gap: 8px;
+    padding: 10px;
   }
   
   .file-preview-item {
-    padding: 10px;
+    max-width: 120px;
+    padding: 8px;
+  }
+
+  .file-preview img {
+    max-width: 100px !important;
+    max-height: 80px !important;
+  }
+
+  .file-preview audio {
+    max-width: 100px !important;
   }
   
   .media-files-container {
@@ -617,6 +724,15 @@ form button:hover {
   
   .file-upload-info {
     font-size: 12px;
+  }
+
+  .media-upload-section {
+    padding: 15px;
+  }
+  
+  .file-input-label {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 }
 
@@ -637,19 +753,32 @@ form button:hover {
   .dropdown-content {
     min-width: 150px;
   }
+
+  .modal-content {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
   .media-upload-section {
-    padding: 15px;
+    padding: 10px;
   }
   
   .file-input-label {
-    padding: 8px 16px;
-    font-size: 13px;
+    padding: 6px 12px;
+    font-size: 12px;
   }
   
   .media-files-container {
     grid-template-columns: 1fr;
+  }
+
+  .file-preview-item {
+    max-width: 100%;
+  }
+
+  .modal-content {
+    width: 98%;
+    max-height: 95vh;
   }
 }

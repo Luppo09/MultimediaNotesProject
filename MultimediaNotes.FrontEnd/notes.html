@@ -13,9 +13,9 @@
     <h2>Editar Anotação</h2>
     <form id="editForm">
       <input type="hidden" id="editId" />
-      <input type="text" id="editTitle" required />
-      <textarea id="editContent" required></textarea>
-      <input type="text" id="editCategory" />
+      <input type="text" id="editTitle" placeholder="Título da anotação" required />
+      <textarea id="editContent" placeholder="Conteúdo da anotação" required></textarea>
+      <input type="text" id="editCategory" placeholder="Categoria (opcional)" />
       <input type="datetime-local" id="editReminder" />
       <select id="editPriority">
         <option value="1">Baixa</option>
@@ -23,8 +23,30 @@
         <option value="3">Alta</option>
       </select>
       
-      <!-- Container para arquivos de mídia no modal de edição -->
+      <!-- Container para arquivos de mídia existentes -->
       <div id="editMediaContainer"></div>
+      
+      <!-- Seção de upload de novos arquivos -->
+      <div class="media-upload-section" id="editUploadSection">
+        <h4>📎 Adicionar Novos Arquivos</h4>
+        <div class="file-input-wrapper">
+          <input type="file" id="editFileInput" class="file-input" multiple accept="image/*,audio/*">
+          <label for="editFileInput" class="file-input-label">
+            📁 Selecionar Arquivos
+          </label>
+        </div>
+        <div class="file-upload-info">
+          Tipos permitidos: Imagens (JPG, PNG, GIF, BMP, WEBP) e Áudios (MP3, WAV, OGG, M4A)<br>
+          Tamanho máximo: 50MB por arquivo
+        </div>
+        <div id="editFilePreviewContainer"></div>
+        <div class="upload-progress" id="editUploadProgress">
+          <p id="editUploadStatus">Preparando upload...</p>
+          <div class="progress-bar">
+            <div class="progress-fill" id="editProgressFill"></div>
+          </div>
+        </div>
+      </div>
       
       <button type="submit">Salvar Alterações</button>
       <button type="button" id="cancelEdit">Cancelar</button>
