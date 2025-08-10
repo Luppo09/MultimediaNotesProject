@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Criar Anotação</title>
   <link rel="stylesheet" href="css/style.css" />
+
 </head>
 
 <body>
@@ -42,6 +43,25 @@
 
         <input type="text" id="category" placeholder="Categoria" />
         <input type="datetime-local" id="reminder" />
+
+        <!-- Seção referente a upload de mídia -->
+        <div class="media-upload-section">
+          <h3>📎 Adicionar Arquivos (Opcional)</h3>
+          <div class="file-input-wrapper">
+            <input type="file" id="mediaFiles" multiple accept="image/*,audio/*" />
+            <label for="mediaFiles" class="file-input-label">
+              📁 Selecionar Arquivos
+            </label>
+          </div>
+          <div class="file-upload-info">
+            <p>Formatos aceitos: Imagens (JPG, PNG, GIF, BMP) e Áudios (MP3, WAV, OGG, M4A)</p>
+            <p>Tamanho máximo por arquivo: 50MB</p>
+          </div>
+        </div>
+
+        <!-- Container para preview dos arquivos -->
+        <div id="filePreviewContainer"></div>
+
         <button type="submit">Salvar</button>
       </form>
     </section>

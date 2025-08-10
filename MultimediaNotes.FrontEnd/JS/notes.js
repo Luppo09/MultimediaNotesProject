@@ -1,5 +1,5 @@
-// notes.js - Atualizado para usar autenticação
 import { GETAnnotationsByUserId, PUTAnnotation, DELETEAnnotation, GETAnnotationById } from "./api.js";
+import { getMediaFilesByAnnotation, deleteMediaFile, createFilePreview } from "./mediaFileApi.js";
 import authService from "./auth.js";
 
 /* --- Excluir nota via API (DELETE) ------------ */
@@ -22,6 +22,68 @@ async function excluirNota(id) {
   }
 }
 
+/* --- Carregar arquivos de mídia para uma anotação --- */
+async function loadMediaFiles(annotationId, container) {
+  try {
+    const files = await getMediaFilesByAnnotation(annotationId);
+    
+    if (files && files.length > 0) {
+      const mediaSection = document.createElement('div');
+      mediaSection.className = 'media-section';
+      
+      const mediaTitle = document.createElement('h4');
+      mediaTitle.textContent = '📎 Arquivos Anexados:';
+      mediaTitle.style.marginTop = '15px';
+      mediaTitle.style.marginBottom = '10px';
+      mediaSection.appendChild(mediaTitle);
+
+      const mediaContainer = document.createElement('div');
+      mediaContainer.className = 'media-files-container';
+      
+      // Processar cada arquivo em sequencia
+      for (const file of files) {
+        const fileContainer = document.createElement('div');
+        fileContainer.className = 'media-file-item';
+        fileContainer.style.position = 'relative';
+        fileContainer.style.marginBottom = '10px';
+        
+        // Aguardar a criação do preview 
+        const preview = await createFilePreview(null, file);
+        
+        // Botão para deletar arquivo individual
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-media-btn';
+        deleteBtn.innerHTML = '🗑️';
+        deleteBtn.title = 'Excluir arquivo';
+        deleteBtn.onclick = async (e) => {
+          e.stopPropagation();
+          if (confirm(`Tem certeza que deseja excluir o arquivo "${file.fileName}"?`)) {
+            const success = await deleteMediaFile(file.id);
+            if (success) {
+              fileContainer.remove();
+              // remover a seção inteira se não houver mais arquivos
+              if (mediaContainer.children.length === 0) {
+                mediaSection.remove();
+              }
+            } else {
+              alert('Erro ao excluir arquivo');
+            }
+          }
+        };
+        
+        fileContainer.appendChild(preview);
+        fileContainer.appendChild(deleteBtn);
+        mediaContainer.appendChild(fileContainer);
+      }
+
+      mediaSection.appendChild(mediaContainer);
+      container.appendChild(mediaSection);
+    }
+  } catch (error) {
+    console.error('Erro ao carregar arquivos de mídia:', error);
+  }
+}
+
 /* --- Abrir modal de edição via API ------------ */
 async function abrirEdicao(id) {
   try {
@@ -40,6 +102,13 @@ async function abrirEdicao(id) {
       ? new Date(nota.reminder).toISOString().slice(0, 16)
       : "";
     document.getElementById("editPriority").value = nota.priority;
+
+    // Carregar arquivos de mídia no modal
+    const editMediaContainer = document.getElementById("editMediaContainer");
+    if (editMediaContainer) {
+      editMediaContainer.innerHTML = '';
+      await loadMediaFiles(nota.id, editMediaContainer);
+    }
 
     const modal = document.getElementById("editModal");
     modal.classList.remove("hidden");
@@ -87,11 +156,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const user = authService.getUser();
   const notesContainer = document.getElementById("notesContainer");
-  const header = document.querySelector('header');
 
   try {
-    // Buscar anotações do usuário específico
-    //const userId = user ? user.id : 1; // Fallback para ID 1
     const user = authService.getUser();
 
     if (!user || !user.id) {
@@ -107,7 +173,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let anotacoes = [];
 
     if (apiData) {
-      // Verificar se é um array direto ou se tem $values
+      // Verificar se é um array que contem $values
       anotacoes = apiData.$values || apiData || [];
     }
 
@@ -120,7 +186,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Ordenar por prioridade (alta para baixa)
     anotacoes.sort((a, b) => b.priority - a.priority);
 
-    anotacoes.forEach(nota => {
+    // Processar cada anotação
+    for (const nota of anotacoes) {
       const div = document.createElement("div");
       div.className = "note";
       div.dataset.priority = nota.priority;
@@ -145,8 +212,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           <button class="delete-btn" data-id="${nota.id}">Excluir</button>
         </div>
       `;
+      
+      // Carregar arquivos de mídia para anotação
+      await loadMediaFiles(nota.id, div);
+      
       notesContainer.appendChild(div);
-    });
+    }
 
     /* ---------- EXCLUIR / EDITAR ---------- */
     notesContainer.addEventListener("click", e => {
